@@ -15,30 +15,23 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Request {
-    @NotBlank(message = "Уникальный идентификатор сообщения")
-    @Size(max = 32, message = "Уникальный идентификатор сообщения не более 32 символов")
+    @NotBlank(message = "Uid не заполнено")
     private String uid;
-
-    @NotBlank(message = "Уникальный идентификатор операции")
-    @Size(max = 32, message = "Уникальный идентификатор операции не более 32 символов")
+    @NotBlank(message = "OperationUid не заполнено")
     private String operationUid;
-
-    @NotBlank(message = "Время создания сообщения")
+    private Systems systemName;
+    @NotBlank(message = "SystemTime не заполнено")
     private String systemTime;
-
-    @Min(value = 1, message = "Уникальный идентификатор коммуникации не менее 1")
-    @Max(value = 100000, message = "Уникальный идентификатор коммуникации не более 100000")
-    private int communicationId;
-
-    private String systemName;
     private String source;
+    @Min(value = 1, message = "CommunicationId не должно быть меньше 1")
+    @Max(value = 100000, message = "CommunicationId не должно быть больше 100000")
+    private int communicationId;
     private int templateId;
     private int productCode;
     private int smsCode;
-
     @Override
     public String toString() {
-        return " " +
+        return "{" +
                 "uid='" + uid + '\'' +
                 ", operationUid='" + operationUid + '\'' +
                 ", systemName='" + systemName + '\'' +

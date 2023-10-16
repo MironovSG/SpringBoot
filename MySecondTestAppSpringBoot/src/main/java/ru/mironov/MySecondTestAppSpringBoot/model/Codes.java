@@ -5,16 +5,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum Codes {
     SUCCESS("success"),
     FAILED("failed");
-        private final String name;
+    private final String name;
     Codes(String name) {
         this.name = name;
     }
-    @Override
-            public String toString() {
+    @JsonValue
+    public String getName() {
         return name;
     }
-    @JsonValue
-            public String getName() {
+    @Override
+    public String toString() {
         return name;
     }
 }
