@@ -16,9 +16,9 @@ import ru.mironov.MySecondTestAppSpringBoot.service.ModifyRequestService;
 import ru.mironov.MySecondTestAppSpringBoot.service.ModifyResponseService;
 import ru.mironov.MySecondTestAppSpringBoot.service.ValidationService;
 import ru.mironov.MySecondTestAppSpringBoot.util.DateTimeUtil;
-
 import javax.validation.Valid;
 import java.util.Date;
+import static ru.mironov.MySecondTestAppSpringBoot.model.Codes.SUCCESS;
 
 @RestController
 @Slf4j
@@ -27,7 +27,6 @@ public class MyController {
     private final ModifyResponseService modifyResponseService;
     private final ModifyRequestService modifyRequestService;
     private final ModifyRequestService modifySourceRequestService;
-
     @Autowired
     public MyController(ValidationService validationService,
                         @Qualifier("ModifySystemTimeResponseService") ModifyResponseService modifyResponseService,
@@ -49,45 +48,34 @@ public class MyController {
                 .uid(request.getUid())
                 .operationUid(request.getOperationUid())
                 .systemTime(DateTimeUtil.getCustomFormat().format(new Date()))
-                .code(String.valueOf(Codes.SUCCESS))
-                .errorCode(String.valueOf(ErrorCodes.EMPTY))
-                .errorMessage(String.valueOf(ErrorMessages.EMPTY))
+                .code(Codes.SUCCESS)
+                .errorCode(ErrorCodes.EMPTY)
+                .errorMessage(ErrorMessages.EMPTY)
                 .build();
 
         log.info("response: {}", response);
-
         modifyResponseService.modify(response);
 
         try {
             validationService.isValid(bindingResult);
         } catch (ValidationFailedException e) {
-            response.setCode(String.valueOf(Codes.FAILED));
-            response.setErrorCode(String.valueOf(ErrorCodes.VALIDATION_EXCEPTION));
-            response.setErrorMessage(String.valueOf(ErrorMessages.VALIDATION));
-
-            log.error("error response: {} {}", response, bindingResult.getFieldError().getDefaultMessage());
-
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return retErrorResponse(response, bindingResult, ErrorCodes.VALIDATION_EXCEPTION, ErrorMessages.VALIDATION, HttpStatus.BAD_REQUEST);
         } catch (UnsupportedCodeException e) {
-            response.setCode(String.valueOf(Codes.FAILED));
-            response.setErrorCode(String.valueOf(ErrorCodes.UNSUPPORTED_EXCEPTION));
-            response.setErrorMessage(String.valueOf(ErrorMessages.UNSUPPORTED));
-
-            log.error("error response: {} {}", response, bindingResult.getFieldError().getDefaultMessage());
-
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return retErrorResponse(response, bindingResult, ErrorCodes.UNSUPPORTED_EXCEPTION, ErrorMessages.UNSUPPORTED, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            response.setCode(String.valueOf(Codes.FAILED));
-            response.setErrorCode(String.valueOf(ErrorCodes.UNKNOWN_EXCEPTION));
-            response.setErrorMessage(String.valueOf(ErrorMessages.UNKNOWN));
-
-            log.error("response: {} {}", response, bindingResult.getFieldError().getDefaultMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            return retErrorResponse(response, bindingResult, ErrorCodes.UNKNOWN_EXCEPTION, ErrorMessages.UNKNOWN, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         modifyResponseService.modify(response);
         modifySourceRequestService.modify(request);
         modifyRequestService.modify(request);
-
         return new ResponseEntity<>(modifyResponseService.modify(response), HttpStatus.OK);
+    }
+    ResponseEntity<Response> retErrorResponse(Response response, BindingResult bindingResult, ErrorCodes errorCode,
+                                              ErrorMessages errorMessage, HttpStatus httpStatus) {
+        response.setCode(Codes.FAILED);
+        response.setErrorCode(errorCode);
+        response.setErrorMessage(errorMessage);
+        log.error("error response: {} {}", response, bindingResult.getFieldError().getDefaultMessage());
+        return new ResponseEntity<>(response, httpStatus);
     }
 }
