@@ -14,7 +14,6 @@ public class ModifyOperationUidResponseService implements ModifyResponseService 
     public Response modify(Response response) {
         UUID uuid = UUID.randomUUID();
         response.setOperationUid(uuid.toString());
-        log.info("modify response: {}", response);
         return response;
     }
 }

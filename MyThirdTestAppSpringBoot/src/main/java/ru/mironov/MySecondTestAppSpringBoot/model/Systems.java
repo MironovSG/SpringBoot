@@ -1,11 +1,12 @@
 package ru.mironov.MySecondTestAppSpringBoot.model;
+
 import com.fasterxml.jackson.annotation.JsonValue;
 public enum Systems {
     EMPTY (""),
     ERP ("Планирование ресурсов"),
     CRM ("Customer Relationship Management"),
     WMS ("Warehouse Management System"),
-    S1 ("Service 1");
+    S1 ("Service S1");
     private final String name;
     Systems(String name) {
         this.name = name;
